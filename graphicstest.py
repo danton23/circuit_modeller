@@ -172,6 +172,7 @@ def Antenna():
                         Anthigh=Anthighs[i]
                         Antlabel=Text(Point(2.5, 9.9),Anttype + ": "+ str(Antlow)+" Mhz - "+str(Anthigh) +" Mhz")
                         Antlabel.draw(win)
+                        return Anttype, AntCentFreq, Antlow, Anthigh
           #   elif choice == "Dipole":
            #           Antwin.close()
             #          Anttype="Dipole"
@@ -186,15 +187,38 @@ def Antenna():
                       
                         Antchoice()
             
-        Antchoice()
+        Anttype, AntCentfreq, Antlow, Anthigh=Antchoice()
         Wire=Line (Point (2, 7), Point(2, 9.5))
         Wire.draw(win)
         Wire2=Line(Point(1.5,9.5), Point (2.5,9.5))
         Wire2.draw(win)
         Wire3=Line(Point(1,9.7), Point(3, 9.7))
         Wire3.draw(win)
+        return Anttype, AntCentfreq, Antlow, Anthigh   #RETURN means when function is called will return these values - in order to use them out of its scope, however, must call func and also provide new (or same named) vals for returned vals to be passed into - see below
         
-Antenna()
+        
+Anttype, AntCentfreq, Antlow, Anthigh = Antenna() #here we want BOTH to call func and for it to do what it normally does and THEN to store returned vals in outside scope, to do this we must FIRST name vals for returned vals to be stored in (in this case same as those they were 'passed out' in) and THEN call func 
+def Transmit():
+     Transwin = GraphWin(title="Choose a Frequency to transmit on", width = 500, height = 500) # create a window
+     Transwin.setCoords(0, 0, 10, 10)
+     CentLab=Text(Point(5, 8), "Choose center Frequency (MHzs)")
+     CentEnt=Entry(Point(5, 7.5), 5)
+     CentLab.draw(Transwin)
+     CentEnt.draw(Transwin)
+     Transwin.getMouse()
+     entry=int(CentEnt.getText())
+     if entry >=Antlow and entry<= Anthigh:
+         print(Anttype + "Antype")
+         TransCent=entry
+         CentLab.undraw()
+         CentEnt.undraw()
+         CentLab=Text(Point(5, 8), "Choose upper-band (Mhzs)")
+         CentEnt=Entry(Point(5, 7.5),5)
+         CentLab.draw(Transwin)
+         CentEnt.draw(Transwin)
+     else:
+          win32api.MessageBox(0, "Frequency out of range for "+ Anttype + " type antenna, please choose a value between " + str(Antlow) + " and " + str(Anthigh) + " MHzs", "Alert")
+Transmit()     
 Wire3=Line(Point(x3,y3), Point (x4,y4))
 Wire3.draw(win)
 Square4=Rectangle(Point(7.5,4),Point(8.5,5))
