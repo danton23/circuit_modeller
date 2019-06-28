@@ -13,4 +13,12 @@ print(str(resfreq) + "Hzs")
 print(str(resfreqkhzs) + " Khz")
 print(str(resfreqmhzs)+ " Mhz")
 print(str(resfreqghzs)+ " Ghz")
+#### Formula to Calculate 98% of Sideband for FM signal #####
+### BT=2(Δf+fm) #### meaning Average bandwith (for 98% of power) = Two times(frequency deviation +the modulation freq)
+### i.e if deviation =+-75Khz and max modulation freq of 15Khz power approxs (2(75+15)) =180Khz (add on around 20 KHZ to be sure! so bandwidth = 200KHZ therefore USB = f+ 100 and LSB- 100
+Freqdev= 75
+Modfreq= 15
+Combination=Freqdev+Modfreq
+AvBand=2*Combination
+print(str(AvBand) + " is Average Bandwidth" )
 

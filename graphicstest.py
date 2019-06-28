@@ -103,6 +103,13 @@ def Oscillator():
     Inductor.draw(win)
     Userchoice=Text(Point(5,9), "Do you want to change values?")
     Userchoice.draw(win)
+    Induse=Inductance/1000
+    Usecap=Capacitance*10**-6
+    resfreqprep=2*math.pi*math.sqrt(Induse*Usecap)
+    resfreq=1/resfreqprep
+    resfreqmhzs=resfreq/1000000
+    resonanceLabel=Text(Point(4,4.25),"resonant frequency: " +str(resfreqmhzs) +" MHzs")
+    resonanceLabel.draw(win)
     def Choice():
         Userentry=Entry(Point(5,8),5)
         Userentry.draw(win)
@@ -208,17 +215,54 @@ def Transmit():
      Transwin.getMouse()
      entry=int(CentEnt.getText())
      if entry >=Antlow and entry<= Anthigh:
-         print(Anttype + "Antype")
-         TransCent=entry
-         CentLab.undraw()
-         CentEnt.undraw()
-         CentLab=Text(Point(5, 8), "Choose upper-band (Mhzs)")
-         CentEnt=Entry(Point(5, 7.5),5)
-         CentLab.draw(Transwin)
-         CentEnt.draw(Transwin)
+             print(Anttype + "Antype")
+             TransCent=entry
+             CentLab.undraw()
+             CentEnt.undraw()
+             CentLab=Text(Point(5, 8), "Choose Transmission type (\"AM: 10Khz Bandwidth \", FM: varying Bandwidth \")")
+             CentEnt=Entry(Point(5, 7.5),5)
+             CentLab.draw(Transwin)
+             CentEnt.draw(Transwin)
+             Transwin.getMouse()
+             Userentry=CentEnt.getText()
+             if Userentry=="AM":
+                 FrequencyDev=10
+                 return Userentry,FrequencyDev, TransCent
+             elif Userentry=="FM":
+                  Transwin.close()
+                  FMwin=GraphWin(title="Select Modulation Characteristics", width=500, height=500)
+                  FMwin.setCoords(0,0,10,10)
+                  FMlab=Text(Point(5,8), "Choose Frequency Deviation")
+                  FMlab.draw(FMwin)
+                  FMEntry=Entry(Point(5, 7.5),5)
+                  FMEntry.draw(FMwin)
+                  FMwin.getMouse()
+                  FrequencyDev=int(FMEntry.getText())
+                  if FrequencyDev >= 100 or FrequencyDev <= 50:
+                      win32api.MessageBox(0, "Frequency deviation too high/low: Please choose a value between 50 and 100 KHZs")
+                  else:
+                      FMwin.close()
+                      return Userentry,FrequencyDev, TransCent
+             else:
+                      win32api.MessageBox(0, "Please choose Either AM or FM")
+                      Transmit()
      else:
-          win32api.MessageBox(0, "Frequency out of range for "+ Anttype + " type antenna, please choose a value between " + str(Antlow) + " and " + str(Anthigh) + " MHzs", "Alert")
-Transmit()     
+                win32api.MessageBox(0, "Frequency out of range for "+ Anttype + " type antenna, please choose a value between " + str(Antlow) + " and " + str(Anthigh) + " MHzs", "Alert")
+                Transwin.close()
+                #Choice()
+                #FrequencyDev, TransCent = Choice()
+                ####CHANGE THIS!!! TO ALLOW LOOPING BEHVAIOUR WITHOUT CRASHING TRANSMIT (RETURNING "NONE" TYPE)
+       
+                return Userentry, FrequencyDev, TransCent
+Userentry,FrequencyDev, TransCent = Transmit()
+print(FrequencyDev)
+print(TransCent)
+print("Frequency Center = " + str(TransCent)+ " KHzs "+"Deviation = " + str(FrequencyDev)+ " KHzs")
+Freqlow=TransCent - FrequencyDev
+Freqhigh=TransCent + FrequencyDev
+print("USB = " + str(Freqhigh)+ " LSB = " + str(Freqlow))
+TransLabel=Text(Point(4.5,9),Userentry + " signal received on " + str(TransCent) +" MHzs " + "\n bandwidth:+- " + str(FrequencyDev)+" Khzs")
+TransLabel.draw(win)
 Wire3=Line(Point(x3,y3), Point (x4,y4))
 Wire3.draw(win)
 Square4=Rectangle(Point(7.5,4),Point(8.5,5))
