@@ -86,9 +86,14 @@ def Oscillator():
     Indinput=Entry(Point(4,0.5),5)
     Indinput.draw(win)
     win.getMouse()
+    if (Indinput.getText())!= float and (Indinput.getText()) != int:
+        
+             win32api.MessageBox(0, 'Please choose a valid option: value must be a float or integer', 'Incorrect Entry')
+             Indinput.undraw()
+             Indinput=Entry(Point(4,0.5),5)   #MUST redefine it or else it 'redraws' it with previous User input still inserted
+             Indinput.draw(win)
+             win.getMouse()
     Inductance=float(Indinput.getText())
-    Indchoice.undraw()
-    Indinput.undraw()
     Indlabel2=Text(Point(0.5,6), str(Inductance)+"mH")
     Indlabel2.draw(win)
     CapInd=Capacitance*Inductance*10**-6
@@ -120,6 +125,7 @@ def Oscillator():
             SubWire2.undraw()
             SubWire3.undraw()
             Cap.undraw()
+            resonanceLabel.undraw()
             Inductor.undraw()
             Userchoice.undraw()
             Caplabel2.undraw()
