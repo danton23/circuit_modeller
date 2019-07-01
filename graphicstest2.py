@@ -6,9 +6,11 @@ Amp=0
 Ohm=0
 win = GraphWin(width = 600, height = 600) # create a window
 win.setCoords(0, 0, 10, 10) # set the coordinates of the window; bottom left is (0, 0) and top right is (10, 10)
-def valuecheck(userinput,window, *kwargs):
-    window.getMouse()
+def valuecheck(window,x,y,z, *kwargs):
     argstring = []
+    userinput=Entry(Point(x,y),z) #need to redefine it here or it 'redraws it' but retains previously entered value
+    userinput.draw(window)
+    window.getMouse()
     for arg in kwargs:
         if arg == int :
             argstring.append("integer")
@@ -20,6 +22,7 @@ def valuecheck(userinput,window, *kwargs):
     for arg in kwargs:    
         try:
             assignedval=arg(userinput.getText())
+            userinput.undraw()
             return assignedval
         except:      #This line tells loop to move on to next iteration (i.e next arg in kwargs according to FOR condition)
             pass
@@ -27,34 +30,22 @@ def valuecheck(userinput,window, *kwargs):
             argslist = []
             print(argslist)
             win32api.MessageBox(0, "Please select and appropriate value - must be " + str(' or '.join(argstring)), "Incorrect Entry")  #here str(','.join(argstring)) takes all items in list and prints them neatley (i.e without "" around and no [])
-            return valuecheck(userinput, window, *kwargs)                                  #NOTE above i replaced ", " with "or" as the SEPERATOR so now says Integer OR string instead of Integer, String
+            userinput.undraw()
+            return valuecheck(window,x,y,z, *kwargs)                                  #NOTE above i replaced ", " with "or" as the SEPERATOR so now says Integer OR string instead of Integer, String
   
 label=Text(Point(5,1),"input source voltage")
 label.draw(win)
-textEntry = Entry(Point(4,2),5)
-textEntry.draw(win)
 Square2=Rectangle(Point(3.5,3.5), Point (4.5,2.5))# draw it to the window
 Square2.setFill("red")
 Square2.draw(win)
-voltage = valuecheck(textEntry, win, int,float)
+voltage = valuecheck(win, 4,2,5, int,float)
 label.undraw()
-textEntry.undraw()
 Squarelab=Text(Point (4,2), str(voltage) + " V")
 Squarelab.draw(win)
 rlabel=Text(Point(8,9),"input resistance")
 rlabel.draw(win)
-rtextEntry=Entry(Point(7,8.5),5)
-rtextEntry.draw(win)
-win.getMouse()
-if (rtextEntry.getText()) != float and (rtextEntry.getText())!= int:
-    win32api.MessageBox(0, "Please select an appropriate value, must be float or integer", "Incorrect Entry")
-    rtextEntry.undraw()
-    rtextEntry=Entry(Point(7, 8.5),5)
-    rtextEntry.draw(win)
-    win.getMouse()       # need to call win.getMouse() again at end to 're-loop' around
-resistance=float(rtextEntry.getText())
+resistance=valuecheck (win,7,8.5,5, float, int)
 rlabel.undraw()
-rtextEntry.undraw()
 #label=Text(Point(8,9),"input current")
 #label.draw(win)
 #textEntry=Entry(Point(8,8),5)
@@ -62,9 +53,6 @@ rtextEntry.undraw()
 #win.getMouse()
 #current=textEntry.getText()
 #label.undraw()
-textEntry.undraw()
-
-
 x1=4
 y1=3.5
 x2=4
@@ -99,47 +87,16 @@ def Oscillator():
     SubWire3.draw(win)
     Capchoice=Text(Point(4, 1), "choose Capacitor value!(uF)")
     Capchoice.draw(win)
-    Capinput=Entry(Point(4, 0.5), 5)
-    Capinput.draw(win)
-    def Capcheck(Capinput):
-        win.getMouse()
-        try :
-            float(Capinput.getText())
-            Capacitance=float(Capinput.getText())
-            return Capacitance
-        except:
-            try:
-                int(Capinput.getText())
-                Capacitance=float(Capinput.getText())
-                return Capacitance
-            except:
-                   win32api.MessageBox(0, "Please choose a valid option: value must be a float or integer", "Incorrect Entry")
-                   Capinput.undraw()
-                   Capinput=Entry(Point(4, 0.5), 5)
-                   Capinput.draw(win)
-                   return Capcheck(Capinput)
-    Capacitance=Capcheck(Capinput)
+    Capacitance=valuecheck(win, 4, 0.5, 5, int, float)
     Caplabel2=Text(Point (5, 6), str(Capacitance) +" uF")
     Caplabel2.draw(win)
     Capchoice.undraw()
-    Capinput.undraw()
     Indchoice=Text(Point(4,1),"choose Inductor value!(mH)")
     Indchoice.draw(win)
-    Indinput=Entry(Point(4,0.5),5)
-    Indinput.draw(win)
-    def Indcheck(Indinput):
-         win.getMouse()
-         if type(Indinput.getText()) != float and type(Indinput.getText()) != int:
-        
-             win32api.MessageBox(0, 'Please choose a valid option: value must be a float or integer', 'Incorrect Entry')
-             Indinput.undraw()
-             Indinput=Entry(Point(4,0.5),5)   #MUST redefine it or else it 'redraws' it with previous User input still inserted
-             Indinput.draw(win)
-             Indcheck(Indinput)
-    Indcheck(Indinput)
-    Inductance=float(Indinput.getText())
+    Inductance=valuecheck(win, 4, 0.5, 5, int, float)
     Indlabel2=Text(Point(0.5,6), str(Inductance)+"mH")
     Indlabel2.draw(win)
+    Indchoice.undraw()
     CapInd=Capacitance*Inductance*10**-6
     RootCI=math.sqrt(CapInd)
     Resonantfreq=1/2*math.pi*RootCI
@@ -238,14 +195,14 @@ def Antenna():
             #          Anttype="Dipole"
              #         AntCentFreq=1000
               #        Antlow=960
-               #       Anthigh=1040
+              #       Anthigh=1040
                 #      Antlabel=(Point(2.5, 9.9), "Dipole: "+ str(Antlow)+" Mhz - "+str(Anthigh) + " Mhz")
                  #     Antlabel.draw(win)
              else:
                         win32api.MessageBox(0, 'Please choose a valid option', 'Incorrect Entry')
                         Antwin.close()
                       
-                        Antchoice()
+                        return Antchoice()   #VVVV IMPORTANT!!! if your function is supposed to be passing OUT vals to wider scope (as here with antype, center freq etc) then if you have failed loop (i.e else condition or something) which RE-CALLS function it is in MUST PUT RETURN in front to stop this returning NONE to wider scope when fails first time around! 
             
         Anttype, AntCentfreq, Antlow, Anthigh=Antchoice()
         Wire=Line (Point (2, 7), Point(2, 9.5))
@@ -261,52 +218,71 @@ Anttype, AntCentfreq, Antlow, Anthigh = Antenna() #here we want BOTH to call fun
 def Transmit():
      Transwin = GraphWin(title="Choose a Frequency to transmit on", width = 500, height = 500) # create a window
      Transwin.setCoords(0, 0, 10, 10)
-     CentLab=Text(Point(5, 8), "Choose center Frequency (MHzs)")
-     CentEnt=Entry(Point(5, 7.5), 5)
-     CentLab.draw(Transwin)
-     CentEnt.draw(Transwin)
-     Transwin.getMouse()
-     entry=int(CentEnt.getText())
-     if entry >=Antlow and entry<= Anthigh:
+     def Centfreq():
+       CentLab=Text(Point(5, 8), "Choose center Frequency (MHzs)")
+       CentLab.draw(Transwin)
+       centerentry=valuecheck(Transwin,5,7.5,5, int, float)
+       if centerentry >=Antlow and centerentry<= Anthigh:
              print(Anttype + "Antype")
-             TransCent=entry
+             TransCent=centerentry
              CentLab.undraw()
-             CentEnt.undraw()
-             CentLab=Text(Point(5, 8), "Choose Transmission type (\"AM: 10Khz Bandwidth \", FM: varying Bandwidth \")")
-             CentEnt=Entry(Point(5, 7.5),5)
-             CentLab.draw(Transwin)
-             CentEnt.draw(Transwin)
-             Transwin.getMouse()
-             Userentry=CentEnt.getText()
-             if Userentry=="AM":
-                 FrequencyDev=10
-                 return Userentry,FrequencyDev, TransCent
-             elif Userentry=="FM":
-                  Transwin.close()
-                  FMwin=GraphWin(title="Select Modulation Characteristics", width=500, height=500)
-                  FMwin.setCoords(0,0,10,10)
-                  FMlab=Text(Point(5,8), "Choose Frequency Deviation")
-                  FMlab.draw(FMwin)
-                  FMEntry=Entry(Point(5, 7.5),5)
-                  FMEntry.draw(FMwin)
-                  FMwin.getMouse()
-                  FrequencyDev=int(FMEntry.getText())
-                  if FrequencyDev >= 100 or FrequencyDev <= 50:
-                      win32api.MessageBox(0, "Frequency deviation too high/low: Please choose a value between 50 and 100 KHZs")
-                  else:
-                      FMwin.close()
-                      return Userentry,FrequencyDev, TransCent
-             else:
-                      win32api.MessageBox(0, "Please choose Either AM or FM")
-                      Transmit()
-     else:
+             CentLab2=Text(Point(5, 8), "Choose Transmission type (\"AM: 10Khz Bandwidth \", FM: varying Bandwidth \")")
+             CentLab2.draw(Transwin)
+             
+             def AMFM():
+               CentEnt=Entry(Point(5, 7.5),5)
+               
+               CentEnt.draw(Transwin)
+               Transwin.getMouse()
+               Userentry=CentEnt.getText()
+               if Userentry=="AM":
+                   Transwin.close()
+                   FrequencyDev=10
+                   return Userentry,FrequencyDev, TransCent
+               elif Userentry=="FM":
+                    print("Useentry=FM")
+                    Transwin.close()
+                    FMwin=GraphWin(title="Select Modulation Characteristics", width=500, height=500)
+                    FMwin.setCoords(0,0,10,10)
+                    FMlab=Text(Point(5,8), "Choose Frequency Deviation")
+                    FMlab.draw(FMwin)
+                    
+                    def Freqcheck():
+                      print("freqcheck")
+                      FMEntry=Entry(Point(5, 7.5),5)
+                      FMEntry.draw(FMwin)
+                      FMwin.getMouse()
+                      try:FrequencyDev=int(FMEntry.getText())
+                      except:
+                             win32api.MessageBox(0, "must be a number!", "incorrect entry")
+                             return Freqcheck() 
+                      if FrequencyDev >= 100 or FrequencyDev <= 50:
+                          win32api.MessageBox(0, "Frequency deviation too high/low: Please choose a value between 50 and 100 KHZs")
+                          FMEntry.undraw()
+                          return Freqcheck()
+                          
+                        
+                        
+                      else:
+                          FMwin.close()
+                          return Userentry,FrequencyDev, TransCent
+                    return Freqcheck()  
+               else:
+                        win32api.MessageBox(0, "Please choose Either AM or FM")
+                        CentEnt.undraw()
+                        return AMFM()   #HERE only works with 'return' keyword in front- otherwise means first time func is called below (Userentry,FrequencyDev, TransCent = Transmit()) it will return NONE and thus no values can be stored and prog will crash!
+             return AMFM()
+       else:
                 win32api.MessageBox(0, "Frequency out of range for "+ Anttype + " type antenna, please choose a value between " + str(Antlow) + " and " + str(Anthigh) + " MHzs", "Alert")
-                Transwin.close()
+                CentLab.undraw()
+                return Centfreq()
                 #Choice()
                 #FrequencyDev, TransCent = Choice()
                 ####CHANGE THIS!!! TO ALLOW LOOPING BEHVAIOUR WITHOUT CRASHING TRANSMIT (RETURNING "NONE" TYPE)
+                
        
-                return Userentry, FrequencyDev, TransCent
+               # return Userentry, FrequencyDev, TransCent
+     return Centfreq()
 Userentry,FrequencyDev, TransCent = Transmit()
 print(FrequencyDev)
 print(TransCent)
