@@ -6,7 +6,29 @@ Amp=0
 Ohm=0
 win = GraphWin(width = 600, height = 600) # create a window
 win.setCoords(0, 0, 10, 10) # set the coordinates of the window; bottom left is (0, 0) and top right is (10, 10)
-
+def valuecheck(userinput,window, *kwargs):
+    window.getMouse()
+    argstring = []
+    for arg in kwargs:
+        if arg == int :
+            argstring.append("integer")
+        if arg ==str:
+            argstring.append("word")
+        if arg==float:
+            argstring.append("float")
+           
+    for arg in kwargs:    
+        try:
+            assignedval=arg(userinput.getText())
+            return assignedval
+        except:      #This line tells loop to move on to next iteration (i.e next arg in kwargs according to FOR condition)
+            pass
+    else:    #This line (which lines up with FOR loop - i.e once all conditions in try loop have been FAILED - tells program to exectue win32 warning to tell user to input appropriate value
+            argslist = []
+            print(argslist)
+            win32api.MessageBox(0, "Please select and appropriate value - must be " + str(' or '.join(argstring)), "Incorrect Entry")  #here str(','.join(argstring)) takes all items in list and prints them neatley (i.e without "" around and no [])
+            return valuecheck(userinput, window, *kwargs)                                  #NOTE above i replaced ", " with "or" as the SEPERATOR so now says Integer OR string instead of Integer, String
+  
 label=Text(Point(5,1),"input source voltage")
 label.draw(win)
 textEntry = Entry(Point(4,2),5)
@@ -14,9 +36,7 @@ textEntry.draw(win)
 Square2=Rectangle(Point(3.5,3.5), Point (4.5,2.5))# draw it to the window
 Square2.setFill("red")
 Square2.draw(win)
-win.getMouse()
-
-voltage = float(textEntry.getText())
+voltage = valuecheck(textEntry, win, int,float)
 label.undraw()
 textEntry.undraw()
 Squarelab=Text(Point (4,2), str(voltage) + " V")
@@ -26,6 +46,12 @@ rlabel.draw(win)
 rtextEntry=Entry(Point(7,8.5),5)
 rtextEntry.draw(win)
 win.getMouse()
+if (rtextEntry.getText()) != float and (rtextEntry.getText())!= int:
+    win32api.MessageBox(0, "Please select an appropriate value, must be float or integer", "Incorrect Entry")
+    rtextEntry.undraw()
+    rtextEntry=Entry(Point(7, 8.5),5)
+    rtextEntry.draw(win)
+    win.getMouse()       # need to call win.getMouse() again at end to 're-loop' around
 resistance=float(rtextEntry.getText())
 rlabel.undraw()
 rtextEntry.undraw()
@@ -75,8 +101,24 @@ def Oscillator():
     Capchoice.draw(win)
     Capinput=Entry(Point(4, 0.5), 5)
     Capinput.draw(win)
-    win.getMouse()
-    Capacitance=float(Capinput.getText())
+    def Capcheck(Capinput):
+        win.getMouse()
+        try :
+            float(Capinput.getText())
+            Capacitance=float(Capinput.getText())
+            return Capacitance
+        except:
+            try:
+                int(Capinput.getText())
+                Capacitance=float(Capinput.getText())
+                return Capacitance
+            except:
+                   win32api.MessageBox(0, "Please choose a valid option: value must be a float or integer", "Incorrect Entry")
+                   Capinput.undraw()
+                   Capinput=Entry(Point(4, 0.5), 5)
+                   Capinput.draw(win)
+                   return Capcheck(Capinput)
+    Capacitance=Capcheck(Capinput)
     Caplabel2=Text(Point (5, 6), str(Capacitance) +" uF")
     Caplabel2.draw(win)
     Capchoice.undraw()
@@ -85,14 +127,16 @@ def Oscillator():
     Indchoice.draw(win)
     Indinput=Entry(Point(4,0.5),5)
     Indinput.draw(win)
-    win.getMouse()
-    if (Indinput.getText())!= float and (Indinput.getText()) != int:
+    def Indcheck(Indinput):
+         win.getMouse()
+         if type(Indinput.getText()) != float and type(Indinput.getText()) != int:
         
              win32api.MessageBox(0, 'Please choose a valid option: value must be a float or integer', 'Incorrect Entry')
              Indinput.undraw()
              Indinput=Entry(Point(4,0.5),5)   #MUST redefine it or else it 'redraws' it with previous User input still inserted
              Indinput.draw(win)
-             win.getMouse()
+             Indcheck(Indinput)
+    Indcheck(Indinput)
     Inductance=float(Indinput.getText())
     Indlabel2=Text(Point(0.5,6), str(Inductance)+"mH")
     Indlabel2.draw(win)
@@ -130,13 +174,16 @@ def Oscillator():
             Userchoice.undraw()
             Caplabel2.undraw()
             Indlabel2.undraw()
+            Capchoice.undraw()
             Oscillator()
         elif choice == "no" or choice == "n":
             Userchoice.undraw()
             Userentry.undraw()
             
         else:
-            print("Please choose yes or no")
+            win32api.MessageBox(0, "Please choose either y(es) or n(o)","Incorrect Entry")
+            Userentry.undraw()
+            Choice()
     Choice()
             
         
